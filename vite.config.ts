@@ -9,7 +9,6 @@ export default defineConfig({
       '/api': {
         target: 'https://lake.arzdigital.com/app-dev',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
         secure: true,
       },
     },

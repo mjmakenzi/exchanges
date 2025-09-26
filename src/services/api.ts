@@ -21,7 +21,7 @@ export interface Exchange {
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  'https://lake.arzdigital.com/app-dev/api/v1/pub/revive/buy-button';
+  'https://nexus-api-dev.arzops.link/api/v1/pub/revive/buy-button';
 
 export const fetchExchanges = async (
   coinSlug: string = 'bitcoin'

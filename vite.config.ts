@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://lake.arzdigital.com/app-dev',
+        target: 'https://nexus-api-dev.arzops.link',
         changeOrigin: true,
         secure: true,
       },

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import ExchangeCard from './components/ExchangeCard';
-import { fetchExchanges } from './services/api';
+import CoinInfo from './components/CoinInfo';
+import { fetchExchanges, getCoinData } from './services/api';
 import type { Exchange } from './components/ExchangeCard';
+import type { CoinData } from './services/api';
 
 function App() {
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
+  const [coinData, setCoinData] = useState<CoinData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,8 +16,9 @@ function App() {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchExchanges('bitcoin');
+        const data = await fetchExchanges();
         setExchanges(data);
+        setCoinData(getCoinData(data));
       } catch (err) {
         setError('خطا در بارگذاری داده‌ها');
         console.error('Error loading exchanges:', err);
@@ -69,6 +73,10 @@ function App() {
         <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           صرافی‌های ارز دیجیتال
         </h1>
+
+        {/* Coin Information */}
+        {coinData && <CoinInfo coin={coinData} />}
+
         <div className="space-y-4">
           {exchanges.length > 0 ? (
             exchanges.map((ex) => <ExchangeCard key={ex.id} exchange={ex} />)

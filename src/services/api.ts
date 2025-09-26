@@ -19,6 +19,15 @@ export interface Exchange {
   };
 }
 
+export interface CoinData {
+  slug: string;
+  symbol: string;
+  name: string;
+  fa_name: string;
+  logo_url: string;
+  trading_url: string;
+}
+
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD
@@ -26,12 +35,14 @@ const API_BASE_URL =
     : 'https://nexus-api-dev.arzops.link/api/v1/pub/revive/buy-button');
 
 export const fetchExchanges = async (
-  coinSlug: string = 'bitcoin'
+  coinSlug?: string
 ): Promise<Exchange[]> => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}?slug=${coinSlug}&web_app=true`
-    );
+    // Get slug from URL query params if not provided
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = coinSlug || urlParams.get('slug') || 'bitcoin';
+
+    const response = await fetch(`${API_BASE_URL}?slug=${slug}&web_app=true`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -44,4 +55,25 @@ export const fetchExchanges = async (
     // Return empty array on error to prevent app crash
     return [];
   }
+};
+
+// Utility function to get current coin slug from URL
+export const getCurrentCoinSlug = (): string => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('slug') || 'bitcoin';
+};
+
+// Utility function to update URL with new coin slug
+export const updateCoinSlug = (newSlug: string): void => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('slug', newSlug);
+  window.history.pushState({}, '', url.toString());
+};
+
+// Get coin data from the first exchange (all exchanges have the same coin data)
+export const getCoinData = (exchanges: Exchange[]): CoinData | null => {
+  if (exchanges.length > 0 && exchanges[0].coin) {
+    return exchanges[0].coin;
+  }
+  return null;
 };

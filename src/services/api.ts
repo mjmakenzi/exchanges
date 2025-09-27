@@ -35,14 +35,27 @@ const API_BASE_URL =
     : 'https://nexus-api-dev.arzops.link/api/v1/pub/revive/buy-button');
 
 export const fetchExchanges = async (
-  coinSlug?: string
+  coinSlug?: string,
+  coinValue?: string
 ): Promise<Exchange[]> => {
   try {
-    // Get slug from URL query params if not provided
+    // Get slug and coin from URL query params if not provided
     const urlParams = new URLSearchParams(window.location.search);
     const slug = coinSlug || urlParams.get('slug') || 'bitcoin';
+    const coin = coinValue || urlParams.get('coin') || '';
 
-    const response = await fetch(`${API_BASE_URL}?slug=${slug}&web_app=true`);
+    // Build query parameters
+    const queryParams = new URLSearchParams({
+      slug,
+      web_app: 'true',
+    });
+
+    // Add coin parameter if provided
+    if (coin) {
+      queryParams.set('coin', coin);
+    }
+
+    const response = await fetch(`${API_BASE_URL}?${queryParams.toString()}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -63,10 +76,35 @@ export const getCurrentCoinSlug = (): string => {
   return urlParams.get('slug') || 'bitcoin';
 };
 
+// Utility function to get current coin value from URL
+export const getCurrentCoinValue = (): string => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('coin') || '';
+};
+
 // Utility function to update URL with new coin slug
 export const updateCoinSlug = (newSlug: string): void => {
   const url = new URL(window.location.href);
   url.searchParams.set('slug', newSlug);
+  window.history.pushState({}, '', url.toString());
+};
+
+// Utility function to update URL with new coin value
+export const updateCoinValue = (newCoin: string): void => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('coin', newCoin);
+  window.history.pushState({}, '', url.toString());
+};
+
+// Utility function to update both slug and coin
+export const updateCoinParams = (newSlug: string, newCoin?: string): void => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('slug', newSlug);
+  if (newCoin) {
+    url.searchParams.set('coin', newCoin);
+  } else {
+    url.searchParams.delete('coin');
+  }
   window.history.pushState({}, '', url.toString());
 };
 

@@ -41,19 +41,17 @@ export const fetchExchanges = async (
   try {
     // Get slug and coin from URL query params if not provided
     const urlParams = new URLSearchParams(window.location.search);
-    const slug = coinSlug || urlParams.get('slug') || 'bitcoin';
-    const coin = coinValue || urlParams.get('coin') || '';
+    const coinParam = coinValue || urlParams.get('coin') || '';
+    const slugParam = coinSlug || urlParams.get('slug') || '';
 
-    // Build query parameters
+    // Convert coin to slug if coin is provided, otherwise use slug
+    const finalSlug = coinParam || slugParam || 'bitcoin';
+
+    // Build query parameters - API only understands 'slug'
     const queryParams = new URLSearchParams({
-      slug,
+      slug: finalSlug,
       web_app: 'true',
     });
-
-    // Add coin parameter if provided
-    if (coin) {
-      queryParams.set('coin', coin);
-    }
 
     const response = await fetch(`${API_BASE_URL}?${queryParams.toString()}`);
 
@@ -70,10 +68,12 @@ export const fetchExchanges = async (
   }
 };
 
-// Utility function to get current coin slug from URL
+// Utility function to get current coin slug from URL (coin takes priority over slug)
 export const getCurrentCoinSlug = (): string => {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('slug') || 'bitcoin';
+  const coinParam = urlParams.get('coin') || '';
+  const slugParam = urlParams.get('slug') || '';
+  return coinParam || slugParam || 'bitcoin';
 };
 
 // Utility function to get current coin value from URL
